@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Vmix2Sheets</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">Vmix2Sheets</div>
+        </nav>
+        <div class="hero">
+            <h1>Confirm Your Order</h1>
+        </div>
+    </header>
+    <section id="order-confirmation" class="order-confirmation">
+        <h2>Order Summary</h2>
+        <p>Vmix2Sheets Basic - $4.50 per month</p>
+        <button class="cta" id="checkout-button">Proceed to Payment</button>
+    </section>
+    <footer>
+        <p>&copy; 2024 Vmix2Sheets. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.getElementById('checkout-button').addEventListener('click', async function() {
+            const stripe = Stripe('pk_live_51PUpYiCjgheK1bXleXtHsclBIkv0NRlh0lBCOfxy2Lr3yVRcDaiBudrcSDCoaJWBPRY9msLXvOVvz5TMmh2m1D7c00cwLCyzza');
+            const response = await fetch('http://localhost:5000/create-checkout-session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                console.error('Failed to create checkout session');
+                return;
+            }
+
+            const session = await response.json();
+
+            const { error } = await stripe.redirectToCheckout({
+                sessionId: session.id,
+            });
+
+            if (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
+</body>
+</html>
